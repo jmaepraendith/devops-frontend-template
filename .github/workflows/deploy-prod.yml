@@ -1,41 +1,28 @@
-name: "Deploy Production"
+name: "Deploy Frontend"
 on:
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
-  APP_NAME: "gitops-backend"
   FRONTEND_APP_NAME: "gitops-frontend"
 
 jobs:
   build:
     runs-on: "ubuntu-latest"
-    permissions:
-      id-token: write
-      contents: read
     steps:
-      - name: "Checkout"
+      - name: "Checkout Frontend Repository"
         uses: "actions/checkout@v4"
 
-      - name: Log in to Docker Hub
+      - name: "Log in to Docker Hub"
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: "Build and push backend container"
+      - name: "Build and Push Frontend"
         run: |-
           IMAGE_TAG="${GITHUB_REF#refs/*/}"
-          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ env.APP_NAME }}:${IMAGE_TAG}"
-
-          docker build -f docker/prod.Dockerfile -t "${IMAGE_NAME}" .
-          docker push "${IMAGE_NAME}"
-
-      - name: "Build and push frontend container"
-        run: |-
-          IMAGE_TAG="${GITHUB_REF#refs/*/}"
-          FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ env.FRONTEND_APP_NAME }}:${IMAGE_TAG}"
-
-          docker build -f frontend/Dockerfile -t "${FRONTEND_IMAGE_NAME}" frontend/
+          FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/gitops-frontend:${IMAGE_TAG}"
+          docker build -f Dockerfile -t "${FRONTEND_IMAGE_NAME}" .
           docker push "${FRONTEND_IMAGE_NAME}"
