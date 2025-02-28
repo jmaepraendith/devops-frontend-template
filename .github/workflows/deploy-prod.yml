@@ -5,7 +5,8 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
-  APP_NAME: "gitops-frontend"
+  APP_NAME: "gitops-backend"
+  FRONTEND_APP_NAME: "gitops-frontend"
 
 jobs:
   build:
@@ -34,7 +35,7 @@ jobs:
       - name: "Build and push frontend container"
         run: |-
           IMAGE_TAG="${GITHUB_REF#refs/*/}"
-          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ env.FRONTEND_APP_NAME }}:${IMAGE_TAG}"
+          FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/${{ env.FRONTEND_APP_NAME }}:${IMAGE_TAG}"
 
-          docker build -f frontend/Dockerfile -t "${IMAGE_NAME}" frontend/
-          docker push "${IMAGE_NAME}"
+          docker build -f frontend/Dockerfile -t "${FRONTEND_IMAGE_NAME}" frontend/
+          docker push "${FRONTEND_IMAGE_NAME}"
